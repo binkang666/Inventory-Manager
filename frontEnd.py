@@ -3,7 +3,7 @@ from tkinter import ttk
 import tkinter as tk
 import sqlite3
 import dbCommandsPool
-
+ 
 root = tk.Tk()
 root.title('CECS 445 Inventory Manager by Yiang Shen')
 root.geometry("900x700")
