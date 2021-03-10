@@ -6,7 +6,7 @@ import dbCommandsPool
 
 root = tk.Tk()
 root.title('CECS 445 Inventory Manager by Yiang Shen')
-root.geometry("1200x700")
+root.geometry("1300x700")
 
 conn = sqlite3.connect('Hiccups.db')  # create a DB if there is not one
 c = conn.cursor()
@@ -25,12 +25,12 @@ mainOptionFrame.grid(row=0, column=1, padx=20, pady=(10, 0))
 global productAdd
 global vendorAdd
 global ordersAdd
-global InventoryAdd
+global vendorPriceAdd
 # Global tree tables
 
 
 # Main screen Combo Drop down
-mainList = ["Products", "Vendors", "Orders", "Inventory"]
+mainList = ["Products", "Vendors", "Orders", "Vendor Price"]
 mainComboDropdown = ttk.Combobox(mainOptionFrame, value=mainList)
 mainComboDropdown.current(0)
 mainComboDropdown.bind("<<ComboboxSelected>>")
@@ -50,9 +50,9 @@ def addCommand():
     elif (currentSelectedTable == "Orders"):
         print("Yes Orders Add is selected")
         ordersAddWindowPopup()
-    elif (currentSelectedTable == "Inventory"):
-        print("Yes Inventory Add is selected")
-        inventoryAddWindowPopup()
+    elif (currentSelectedTable == "Vendor Price"):
+        print("Yes Vendor Price Add is selected")
+        vendorPricesAddWindowPopup()
 
 def treeRemove():
     currentSelectedTable = mainComboDropdown.get()
@@ -66,9 +66,9 @@ def treeRemove():
             display_Orders_ContentTree.destroy()
         except:
             print("Tree not defined")
-    if (currentSelectedTable !="Inventory"):
+    if (currentSelectedTable !="Vendor Price"):
         try:
-            display_Inventory_ContentTree.destroy()
+            display_VendorPrices_ContentTree.destroy()
         except:
             print("Tree not defined")
 
@@ -96,11 +96,11 @@ def displayCommand():
         treeRemove()
         displayOrdersWindowSetUp()
         queryOrders()
-    elif (currentSelectedTable == "Inventory"):
-        print("Yes Inventory display is selected")
+    elif (currentSelectedTable == "Vendor Price"):
+        print("Yes Vendor Price display is selected")
         treeRemove()
-        displayInventoryWindowSetUp()
-        queryInventory()
+        displayVendorPricesWindowSetUp()
+        queryVendorPrices()
 
 def queryProducts():
     conn = sqlite3.connect('Hiccups.db')
@@ -150,19 +150,19 @@ def queryOrders():
     conn.commit()
     conn.close()
 
-def queryInventory():
+def queryVendorPrices():
     conn = sqlite3.connect('Hiccups.db')
     c = conn.cursor()
     # Query DB
-    c.execute("SELECT * FROM inventory")
+    c.execute("SELECT * FROM vendorPrices")
     records = c.fetchall()
 
-    for row in display_Inventory_ContentTree.get_children():
-        display_Inventory_ContentTree.delete(row)
+    for row in display_VendorPrices_ContentTree.get_children():
+        display_VendorPrices_ContentTree.delete(row)
 
     for row in records:
         print(row)
-        display_Inventory_ContentTree.insert("", tk.END, values=row)
+        display_VendorPrices_ContentTree.insert("", tk.END, values=row)
     conn.commit()
     conn.close()
 # Add item to product button function
@@ -179,6 +179,11 @@ def submitAddProduct():
                   'vendorF': productbox3.get(),
                   'cataF': productbox4.get(),
               })
+    # Clear the text box
+    productbox1.delete(0, END)
+    productbox2.delete(0, END)
+    productbox3.delete(0, END)
+    productbox4.delete(0, END)
 
     conn.commit()
     conn.close()
@@ -195,7 +200,12 @@ def submitAddVendor():
                   'address': vendorbox4.get(),
                   'URL': vendorbox5.get(),
               })
-
+    # Clear the text box
+    vendorbox1.delete(0, END)
+    vendorbox2.delete(0, END)
+    vendorbox3.delete(0, END)
+    vendorbox4.delete(0, END)
+    vendorbox5.delete(0, END)
     conn.commit()
     conn.close()
 def submitAddOrder():
@@ -207,21 +217,31 @@ def submitAddOrder():
                   'date': orderbox2.get(),
                   'vendor': orderbox3.get(),
               })
+    # Clear the text box
+    orderbox1.delete(0, END)
+    orderbox2.delete(0, END)
+    orderbox3.delete(0, END)
 
     conn.commit()
     conn.close()
 
-def submitAddInventory():
+def submitAddVendorPrices():
     conn = sqlite3.connect('Hiccups.db')
     c = conn.cursor()
 
-    c.execute("INSERT INTO inventory VALUES (:unit, :quantity,:level,:code)",
+    c.execute("INSERT INTO vendorPrices VALUES (:price, :vendor,:product,:unitPrice, :timecheck)",
               {
-                  'unit': inventorybox1.get(),
-                  'quantity': inventorybox2.get(),
-                  'level': inventorybox3.get(),
-                  'code': inventorybox4.get(),
+                  'price': vendorPricebox1.get(),
+                  'vendor': vendorPricebox2.get(),
+                  'product': vendorPricebox3.get(),
+                  'unitPrice': vendorPricebox4.get(),
+                  'timecheck': vendorPricebox5.get(),
               })
+    vendorPricebox1.delete(0, END)
+    vendorPricebox2.delete(0, END)
+    vendorPricebox3.delete(0, END)
+    vendorPricebox4.delete(0, END)
+    vendorPricebox5.delete(0, END)
 
     conn.commit()
     conn.close()
@@ -332,36 +352,41 @@ def ordersAddWindowPopup():
     conn.close()
 
 
-def inventoryAddWindowPopup():
-    inventoryAdd = Tk()
-    inventoryAdd.title("Add record to Inventory")
-    inventoryAdd.geometry("400x250")
+def vendorPricesAddWindowPopup():
+    vendorPriceAdd = Tk()
+    vendorPriceAdd.title("Add record to VendorPrice")
+    vendorPriceAdd.geometry("400x250")
     conn = sqlite3.connect('Hiccups.db')
     c = conn.cursor()
 
-    global inventorybox1
-    inventorybox1 = Entry(inventoryAdd, width=30)  # product Code
-    inventorybox1.grid(row=2, column=1, padx=20, pady=(10, 0))
-    global inventorybox2
-    inventorybox2 = Entry(inventoryAdd, width=30)  # product Desc
-    inventorybox2.grid(row=3, column=1, padx=20, pady=(10, 0))
-    global inventorybox3
-    inventorybox3 = Entry(inventoryAdd, width=30)  # vender
-    inventorybox3.grid(row=4, column=1, padx=20, pady=(10, 0))
-    global inventorybox4
-    inventorybox4 = Entry(inventoryAdd, width=30)  # vender
-    inventorybox4.grid(row=5, column=1, padx=20, pady=(10, 0))
+    global vendorPricebox1
+    vendorPricebox1 = Entry(vendorPriceAdd, width=30)  # product Code
+    vendorPricebox1.grid(row=2, column=1, padx=20, pady=(10, 0))
+    global vendorPricebox2
+    vendorPricebox2 = Entry(vendorPriceAdd, width=30)  # product Desc
+    vendorPricebox2.grid(row=3, column=1, padx=20, pady=(10, 0))
+    global vendorPricebox3
+    vendorPricebox3 = Entry(vendorPriceAdd, width=30)  # vender
+    vendorPricebox3.grid(row=4, column=1, padx=20, pady=(10, 0))
+    global vendorPricebox4
+    vendorPricebox4 = Entry(vendorPriceAdd, width=30)  # vender
+    vendorPricebox4.grid(row=5, column=1, padx=20, pady=(10, 0))
+    global vendorPricebox5
+    vendorPricebox5 = Entry(vendorPriceAdd, width=30)  # vender
+    vendorPricebox5.grid(row=6, column=1, padx=20, pady=(10, 0))
     # Create labels for display
-    inventorybox1_label = Label(inventoryAdd, text="Unit In Stock")
-    inventorybox1_label.grid(row=2, column=0, padx=20, pady=(10, 0))
-    inventorybox2_label = Label(inventoryAdd, text="Reorder Quantity")
-    inventorybox2_label.grid(row=3, column=0, padx=20)
-    inventorybox3_label = Label(inventoryAdd, text="Reorder Level")
-    inventorybox3_label.grid(row=4, column=0, padx=20)
-    inventorybox4_label = Label(inventoryAdd, text="Product Code")
-    inventorybox4_label.grid(row=5, column=0, padx=20)
+    vendorPricebox1_label = Label(vendorPriceAdd, text="Unit In Stock")
+    vendorPricebox1_label.grid(row=2, column=0, padx=20, pady=(10, 0))
+    vendorPricebox2_label = Label(vendorPriceAdd, text="Reorder Quantity")
+    vendorPricebox2_label.grid(row=3, column=0, padx=20)
+    vendorPricebox3_label = Label(vendorPriceAdd, text="Reorder Level")
+    vendorPricebox3_label.grid(row=4, column=0, padx=20)
+    vendorPricebox4_label = Label(vendorPriceAdd, text="Product Code")
+    vendorPricebox4_label.grid(row=5, column=0, padx=20)
+    vendorPricebox5_label = Label(vendorPriceAdd, text="Product Code")
+    vendorPricebox5_label.grid(row=6, column=0, padx=20)
 
-    option_Add_btn = Button(inventoryAdd, text="Add to Inventory", command=submitAddInventory)
+    option_Add_btn = Button(vendorPriceAdd, text="Add to Vendor Price List", command=submitAddVendorPrices)
     option_Add_btn.grid(row=6, column=0, columnspan=2, pady=10, padx=20, ipadx=100)
 
     conn.commit()
@@ -412,19 +437,21 @@ def displayOrdersWindowSetUp():
 
     display_Orders_ContentTree.grid(row=0, column=0, padx=50, pady=20)
 
-def displayInventoryWindowSetUp():
-    global display_Inventory_ContentTree
-    display_Inventory_ContentTree = ttk.Treeview(root, column=("c1", "c2", "c3","c4"), show='headings')
-    display_Inventory_ContentTree.column("#1", width=250, minwidth=150, anchor=tk.W)
-    display_Inventory_ContentTree.heading("#1", text="Units in stock")
-    display_Inventory_ContentTree.column("#2", width=180, minwidth=80, anchor=tk.CENTER)
-    display_Inventory_ContentTree.heading("#2", text="Reorder Quantity")
-    display_Inventory_ContentTree.column("#3", width=140, minwidth=100, anchor=tk.CENTER)
-    display_Inventory_ContentTree.heading("#3", text="Reorder Level")
-    display_Inventory_ContentTree.column("#4", width=140, minwidth=100, anchor=tk.CENTER)
-    display_Inventory_ContentTree.heading("#4", text="Product Code")
-    display_Inventory_ContentTree.grid(row=0, column=0, padx=50, pady=20)
+def displayVendorPricesWindowSetUp():
+    global display_VendorPrices_ContentTree
+    display_VendorPrices_ContentTree = ttk.Treeview(root, column=("c1", "c2", "c3", "c4", "c5"), show='headings')
+    display_VendorPrices_ContentTree.column("#1", width=250, minwidth=150, anchor=tk.W)
+    display_VendorPrices_ContentTree.heading("#1", text="Vendor Price ID")
+    display_VendorPrices_ContentTree.column("#2", width=180, minwidth=80, anchor=tk.CENTER)
+    display_VendorPrices_ContentTree.heading("#2", text="Vendor")
+    display_VendorPrices_ContentTree.column("#3", width=140, minwidth=100, anchor=tk.CENTER)
+    display_VendorPrices_ContentTree.heading("#3", text="Product")
+    display_VendorPrices_ContentTree.column("#4", width=140, minwidth=100, anchor=tk.CENTER)
+    display_VendorPrices_ContentTree.heading("#4", text="Unit List Price")
+    display_VendorPrices_ContentTree.column("#5", width=140, minwidth=100, anchor=tk.CENTER)
+    display_VendorPrices_ContentTree.heading("#5", text="Time Checked")
 
+    display_VendorPrices_ContentTree.grid(row=0, column=0, padx=50, pady=20)
 
 # Main Screen Labels
 main_table_label = Label(mainOptionFrame,text="Choose Table")
