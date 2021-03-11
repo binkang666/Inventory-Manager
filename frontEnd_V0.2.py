@@ -6,11 +6,11 @@ import dbCommandsPool
 
 root = tk.Tk()
 root.title('CECS 445 Inventory Manager by Yiang Shen')
-root.geometry("1300x700")
+root.geometry("1400x700")
 
 conn = sqlite3.connect('Hiccups.db')  # create a DB if there is not one
 c = conn.cursor()
-
+c.execute("Delete from products where prodCode = 'Potato' ")
 '''
 c.execute("SELECT * FROM products")
 display1 = c.fetchall()
@@ -29,13 +29,21 @@ global vendorPriceAdd
 # Global tree tables
 
 
-# Main screen Combo Drop down
+# Main screen Tables Combo Drop down
 mainList = ["Products", "Vendors", "Orders", "Vendor Price"]
 mainComboDropdown = ttk.Combobox(mainOptionFrame, value=mainList)
 mainComboDropdown.current(0)
 mainComboDropdown.bind("<<ComboboxSelected>>")
 # print(mainComboDropdown.get())
 mainComboDropdown.grid(row=1, column=1, pady=1, padx=1)
+
+# Main Screen sort-By Combo drop down
+mainSortList = ["Price: Low to High", "Price: High to Low", "Alphabetical", "Newest"]
+mainSortComboDropdown = ttk.Combobox(mainOptionFrame, value=mainSortList)
+mainSortComboDropdown.current(0)
+mainSortComboDropdown.bind("<<ComboboxSelected>>")
+# print(mainComboDropdown.get())
+mainSortComboDropdown.grid(row=6, column=1, pady=1, padx=1)
 
 # addDataComandList in main Screen
 def addCommand():
@@ -78,6 +86,12 @@ def treeRemove():
         except:
             print("Tree not defined")
 
+def editCommand():
+    currentSelectedTable = mainComboDropdown.get()
+    print("In Edit table " + currentSelectedTable)
+    tablename = "";
+    # if table is balabala, then XXXX_EditWindowPopup()
+
 def displayCommand():
     currentSelectedTable = mainComboDropdown.get()
     print("In Display table " + currentSelectedTable)
@@ -101,6 +115,14 @@ def displayCommand():
         treeRemove()
         displayVendorPricesWindowSetUp()
         queryVendorPrices()
+
+
+def sortCommand(): ####################### Comand list for sort in certain type ################################
+    return 0
+
+
+def avgGetterCommand(): ####################### Comand list for get average price form vendors ################################
+    return 0
 
 def queryProducts():
     conn = sqlite3.connect('Hiccups.db')
@@ -170,23 +192,26 @@ def submitAddProduct():
     conn = sqlite3.connect('Hiccups.db')
     c = conn.cursor()
 
-    c.execute("INSERT INTO products VALUES (:code, :desc,:vendor,:cata,:vendorF,:cataF)",
+    c.execute("INSERT INTO products VALUES (:code, :desc,:unitIn,:reQuantity,:reLevel,:cata)",
               {
                   'code': productbox1.get(),
                   'desc': productbox2.get(),
-                  'vendor': productbox3.get(),
-                  'cata': productbox4.get(),
-                  'vendorF': productbox3.get(),
-                  'cataF': productbox4.get(),
+                  'unitIn': productbox3.get(),
+                  'reQuantity': productbox4.get(),
+                  'reLevel': productbox5.get(),
+                  'cata': productbox6.get(),
               })
     # Clear the text box
     productbox1.delete(0, END)
     productbox2.delete(0, END)
     productbox3.delete(0, END)
     productbox4.delete(0, END)
+    productbox5.delete(0, END)
+    productbox6.delete(0, END)
 
     conn.commit()
     conn.close()
+    displayCommand()
 
 def submitAddVendor():
     conn = sqlite3.connect('Hiccups.db')
@@ -208,6 +233,8 @@ def submitAddVendor():
     vendorbox5.delete(0, END)
     conn.commit()
     conn.close()
+    displayCommand()
+
 def submitAddOrder():
     conn = sqlite3.connect('Hiccups.db')
     c = conn.cursor()
@@ -224,6 +251,7 @@ def submitAddOrder():
 
     conn.commit()
     conn.close()
+    displayCommand()
 
 def submitAddVendorPrices():
     conn = sqlite3.connect('Hiccups.db')
@@ -245,6 +273,7 @@ def submitAddVendorPrices():
 
     conn.commit()
     conn.close()
+    displayCommand()
 
 def productsAddWindowPopup():
     productAdd = Tk()
@@ -260,23 +289,32 @@ def productsAddWindowPopup():
     productbox2 = Entry(productAdd, width=30)  # product Desc
     productbox2.grid(row=3, column=1, padx=20, pady=(10, 0))
     global productbox3
-    productbox3 = Entry(productAdd, width=30)  # vendor
+    productbox3 = Entry(productAdd, width=30)
     productbox3.grid(row=4, column=1, padx=20, pady=(10, 0))
     global productbox4
-    productbox4 = Entry(productAdd, width=30)  # category
+    productbox4 = Entry(productAdd, width=30)
     productbox4.grid(row=5, column=1, padx=20, pady=(10, 0))
+    global productbox5
+    productbox5 = Entry(productAdd, width=30)
+    productbox5.grid(row=6, column=1, padx=20, pady=(10, 0))
+    global productbox6
+    productbox6 = Entry(productAdd, width=30)
+    productbox6.grid(row=7, column=1, padx=20, pady=(10, 0))
     # Create labels for display
     box1_label = Label(productAdd, text="Product Code")
     box1_label.grid(row=2, column=0, padx=20, pady=(10, 0))
     box2_label = Label(productAdd, text="Product Desc")
     box2_label.grid(row=3, column=0, padx=20)
-    box3_label = Label(productAdd, text="Vendor")
+    box3_label = Label(productAdd, text="Units In Stock")
     box3_label.grid(row=4, column=0, padx=20)
-    box4_label = Label(productAdd, text="Category")
+    box4_label = Label(productAdd, text="Reorder Quantity")
     box4_label.grid(row=5, column=0, padx=20)
-
+    box3_label = Label(productAdd, text="Reorder Level")
+    box3_label.grid(row=6, column=0, padx=20)
+    box4_label = Label(productAdd, text="Category")
+    box4_label.grid(row=7, column=0, padx=20)
     option_Add_btn = Button(productAdd, text="Add Product", command=submitAddProduct)
-    option_Add_btn.grid(row=6, column=0, columnspan=2, pady=10, padx=20, ipadx=100)
+    option_Add_btn.grid(row=8, column=0, columnspan=2, pady=10, padx=20, ipadx=100)
 
     conn.commit()
     conn.close()
@@ -387,41 +425,46 @@ def vendorPricesAddWindowPopup():
     vendorPricebox5_label.grid(row=6, column=0, padx=20)
 
     option_Add_btn = Button(vendorPriceAdd, text="Add to Vendor Price List", command=submitAddVendorPrices)
-    option_Add_btn.grid(row=6, column=0, columnspan=2, pady=10, padx=20, ipadx=100)
+    option_Add_btn.grid(row=7, column=0, columnspan=2, pady=10, padx=20, ipadx=100)
 
     conn.commit()
     conn.close()
 
 def displayProductsWindowSetUp():
     global display_Products_ContentTree
-    display_Products_ContentTree = ttk.Treeview(root, column=("c1", "c2", "c3", "c4"), show='headings')
-    display_Products_ContentTree.column("#1", width=250, minwidth=150, anchor=tk.W)
+    display_Products_ContentTree = ttk.Treeview(root, column=("c1", "c2", "c3", "c4", "c5", "c6"), show='headings')
+    display_Products_ContentTree.column("#1", width=150, minwidth=100, anchor=tk.CENTER)
     display_Products_ContentTree.heading("#1", text="Product Code")
-    display_Products_ContentTree.column("#2", width=180, minwidth=80, anchor=tk.CENTER)
+    display_Products_ContentTree.column("#2", width=250, minwidth=150, anchor=tk.CENTER)
     display_Products_ContentTree.heading("#2", text="Product Desc")
-    display_Products_ContentTree.column("#3", width=140, minwidth=100, anchor=tk.CENTER)
-    display_Products_ContentTree.heading("#3", text="Vendor")
-    display_Products_ContentTree.column("#4", width=140, minwidth=100, anchor=tk.CENTER)
-    display_Products_ContentTree.heading("#4", text="Category")
+    display_Products_ContentTree.column("#3", width=120, minwidth=100, anchor=tk.CENTER)
+    display_Products_ContentTree.heading("#3", text="Unit In Stock")
+    display_Products_ContentTree.column("#4", width=120, minwidth=100, anchor=tk.CENTER)
+    display_Products_ContentTree.heading("#4", text="Reorder Quantity")
+    display_Products_ContentTree.column("#5", width=120, minwidth=100, anchor=tk.CENTER)
+    display_Products_ContentTree.heading("#5", text="Reorder Level")
+    display_Products_ContentTree.column("#6", width=120, minwidth=100, anchor=tk.CENTER)
+    display_Products_ContentTree.heading("#6", text="Category")
 
     display_Products_ContentTree.grid(row=0, column=0, padx=50, pady=20)
+    root.geometry("1320x400")
 
 def displayVendorsWindowSetUp():
     global display_Vendors_ContentTree
     display_Vendors_ContentTree = ttk.Treeview(root, column=("c1", "c2", "c3", "c4", "c5"), show='headings')
-    display_Vendors_ContentTree.column("#1", width=100, minwidth=100, anchor=tk.W)
+    display_Vendors_ContentTree.column("#1", width=180, minwidth=100, anchor=tk.W)
     display_Vendors_ContentTree.heading("#1", text="Vendor Name")
-    display_Vendors_ContentTree.column("#2", width=150, minwidth=100, anchor=tk.CENTER)
+    display_Vendors_ContentTree.column("#2", width=180, minwidth=100, anchor=tk.CENTER)
     display_Vendors_ContentTree.heading("#2", text="Phone Number")
-    display_Vendors_ContentTree.column("#3", width=180, minwidth=100, anchor=tk.CENTER)
+    display_Vendors_ContentTree.column("#3", width=200, minwidth=100, anchor=tk.CENTER)
     display_Vendors_ContentTree.heading("#3", text="Email")
-    display_Vendors_ContentTree.column("#4", width=180, minwidth=100, anchor=tk.CENTER)
+    display_Vendors_ContentTree.column("#4", width=200, minwidth=100, anchor=tk.CENTER)
     display_Vendors_ContentTree.heading("#4", text="Address")
     display_Vendors_ContentTree.column("#5", width=200, minwidth=100, anchor=tk.CENTER)
     display_Vendors_ContentTree.heading("#5", text="Web URL")
 
     display_Vendors_ContentTree.grid(row=0, column=0, padx=50, pady=20)
-
+    root.geometry("1400x400")
 
 def displayOrdersWindowSetUp():
     global display_Orders_ContentTree
@@ -436,6 +479,7 @@ def displayOrdersWindowSetUp():
     display_Orders_ContentTree.heading("#4", text="Price")'''
 
     display_Orders_ContentTree.grid(row=0, column=0, padx=50, pady=20)
+    root.geometry("1000x400")
 
 def displayVendorPricesWindowSetUp():
     global display_VendorPrices_ContentTree
@@ -452,17 +496,29 @@ def displayVendorPricesWindowSetUp():
     display_VendorPrices_ContentTree.heading("#5", text="Time Checked")
 
     display_VendorPrices_ContentTree.grid(row=0, column=0, padx=50, pady=20)
+    root.geometry("1300x400")
 
 # Main Screen Labels
-main_table_label = Label(mainOptionFrame,text="Choose Table")
-main_table_label.grid(row=1, column=0, pady=10, padx=1)
-
+main_table_select_label = Label(mainOptionFrame, text="Choose Table")
+main_table_select_label.grid(row=1, column=0, pady=10, padx=1)
+main_sortBy_label = Label(mainOptionFrame, text="Sort by")
+main_sortBy_label.grid(row=6, column=0)
 # Insert data button in Main screen
 main_insert_button = Button(mainOptionFrame, text="Add Data", command=addCommand)
 main_insert_button.grid(row=2, column=0, columnspan=2, pady=10, padx=1, ipadx=95)
 # Display table button in Main screen
 main_select_display = Button(mainOptionFrame, text="Display", command=displayCommand)
 main_select_display.grid(row=3, column=0, columnspan=2, pady=10, padx=1, ipadx=103)
+# Edit button in Main Screen
+main_edit_button = Button(mainOptionFrame, text="Edit Highlighted", command=editCommand)
+main_edit_button.grid(row=5, column=0, columnspan=2, pady=10, padx=1, ipadx=78)
+# Sort button in Main Screen
+main_sort_button = Button(mainOptionFrame, text="Sort", command=sortCommand)
+main_sort_button.grid(row=7, column=0, columnspan=2, pady=10, padx=1, ipadx=112) # row 6 is left for drop down
+# Average Getter button
+main_avgGetter_button = Button(mainOptionFrame, text="Calculate Average", command=avgGetterCommand)
+main_avgGetter_button.grid(row=8, column=0, columnspan=2, pady=10, padx=1, ipadx=72)
+
 
 # Initial display products
 displayProductsWindowSetUp()
