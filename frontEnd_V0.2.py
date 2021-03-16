@@ -89,7 +89,10 @@ def treeRemove():
 def editCommand():
     currentSelectedTable = mainComboDropdown.get()
     print("In Edit table " + currentSelectedTable)
-    tablename = "";
+        if (currentSelectedTable == 'Products'):
+        print("Product tuple is selected")
+        editWindowPopup()
+        updateProducts()
     # if table is balabala, then XXXX_EditWindowPopup()
 
 def displayCommand():
@@ -234,6 +237,89 @@ def submitAddVendor():
     conn.commit()
     conn.close()
     displayCommand()
+
+def updateProducts():
+    try:
+        conn = sqlite3.connect('Hiccups.db')
+        c = conn.cursor()
+        c.execute('''UPDATE products
+                 SET prodDesc = :name,
+                     unitsInStock = :stock,
+                     reorderQuantity = :quantity,
+                     reorderLevel = :level,
+                     category = :cate
+                 WHERE prodCode = :code''',
+               {
+                   'code': 345,
+                   'name': product_Desc_editor.get(),
+                   'stock': stock_editor.get(),
+                   'quantity': quantity_editor.get(),
+                   'level': level_editor.get(),
+                   'cate': cate_editor.get(),
+               })
+        queryP()
+        conn.commit()
+        product_Desc_editor.delete(0, END)
+        stock_editor.delete(0, END)
+        quantity_editor.delete(0, END)
+        level_editor.delete(0, END)
+        cate_editor.delete(0, END)
+        c.close()
+        displayCommand()
+    except sqlite3.Error as e:
+        print("Failed to update", e)
+
+def queryP():
+        conn = sqlite3.connect('Hiccups.db')
+        c = conn.cursor()
+        c.execute("SELECT *, oid FROM products")
+        records = c.fetchall()
+        for row in display_Products_ContentTree.get_children():
+            display_Products_ContentTree.delete(row)
+        for row in records:
+            display_Products_ContentTree.insert("", tk.END, values=row)
+        conn.commit()
+        conn.close()
+
+def editWindowPopup():
+    editor = Tk()
+    editor.title("Update data to the tuple")
+    editor.geometry("400x250")
+    conn = sqlite3.connect('Hiccups.db')
+    c = conn.cursor()
+
+    global product_Desc_editor
+    global stock_editor
+    global quantity_editor
+    global level_editor
+    global cate_editor
+
+    product_Desc_editor = Entry(editor, width=30)
+    product_Desc_editor.grid(row=2, column=1, padx=20, pady=(10, 0))
+    stock_editor = Entry(editor, width=30)
+    stock_editor.grid(row=3, column=1)
+    quantity_editor = Entry(editor, width=30)
+    quantity_editor.grid(row=4, column=1)
+    level_editor = Entry(editor, width=30)
+    level_editor.grid(row=5, column=1)
+    cate_editor = Entry(editor, width=30)
+    cate_editor.grid(row=6, column=1)
+
+    box2_label = Label(editor, text="Product Desc")
+    box2_label.grid(row=2, column=0, padx=20)
+    box3_label = Label(editor, text="Units In Stock")
+    box3_label.grid(row=3, column=0, padx=20)
+    box4_label = Label(editor, text="Reorder Quantity")
+    box4_label.grid(row=4, column=0, padx=20)
+    box3_label = Label(editor, text="Reorder Level")
+    box3_label.grid(row=5, column=0, padx=20)
+    box4_label = Label(editor, text="Category")
+    box4_label.grid(row=6, column=0, padx=20)
+    save_btn = Button(editor, text="Edit Product", command=updateProducts)
+    save_btn.grid(row=10, column=0, columnspan=2, pady=10, padx=20, ipadx=100)
+
+    conn.commit()
+    conn.close()
 
 def submitAddOrder():
     conn = sqlite3.connect('Hiccups.db')
