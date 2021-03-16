@@ -89,7 +89,7 @@ def treeRemove():
 def editCommand():
     currentSelectedTable = mainComboDropdown.get()
     print("In Edit table " + currentSelectedTable)
-        if (currentSelectedTable == 'Products'):
+    if (currentSelectedTable == 'Products'):
         print("Product tuple is selected")
         editWindowPopup()
         updateProducts()
@@ -250,7 +250,7 @@ def updateProducts():
                      category = :cate
                  WHERE prodCode = :code''',
                {
-                   'code': 345,
+                   'code': 'Broccoli',
                    'name': product_Desc_editor.get(),
                    'stock': stock_editor.get(),
                    'quantity': quantity_editor.get(),
