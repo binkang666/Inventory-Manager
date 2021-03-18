@@ -7,7 +7,11 @@ import dbCommandsPool
 
 root = tk.Tk()
 root.title('CECS 445 Inventory Manager by Yiang Shen')
-root.geometry("1400x700")
+ws = root.winfo_screenwidth()
+hs = root.winfo_screenheight()
+x = (ws / 2) - (1400 / 2)
+y = (hs / 2) - (700 / 2)
+root.geometry('%dx%d+%d+%d' % (1400, 700, x, y))
 
 conn = sqlite3.connect('Hiccups.db')  # create a DB if there is not one
 c = conn.cursor()
@@ -351,7 +355,7 @@ def submitDeleteCommand():
 def productsAddWindowPopup():
     productAdd = Tk()
     productAdd.title("Add data to product table")
-    productAdd.geometry("400x250")
+    productAdd.geometry('%dx%d+%d+%d' % (400, 250, x*1.5, y*1.5))
     conn = sqlite3.connect('Hiccups.db')
     c = conn.cursor()
 
@@ -395,7 +399,7 @@ def productsAddWindowPopup():
 def vendorsAddWindowPopup():
     vendorAdd = Tk()
     vendorAdd.title("Add New Vendor")
-    vendorAdd.geometry("400x250")
+    vendorAdd.geometry('%dx%d+%d+%d' % (400, 250, x*1.5, y*1.5))
     conn = sqlite3.connect('Hiccups.db')
     c = conn.cursor()
 
@@ -435,7 +439,7 @@ def vendorsAddWindowPopup():
 def ordersAddWindowPopup():
     ordersAdd = Tk()
     ordersAdd.title("Add record to orders")
-    ordersAdd.geometry("400x250")
+    ordersAdd.geometry('%dx%d+%d+%d' % (400, 250, x*1.5, y*1.5))
     conn = sqlite3.connect('Hiccups.db')
     c = conn.cursor()
 
@@ -465,7 +469,7 @@ def ordersAddWindowPopup():
 def vendorPricesAddWindowPopup():
     vendorPriceAdd = Tk()
     vendorPriceAdd.title("Add record to VendorPrice")
-    vendorPriceAdd.geometry("400x250")
+    vendorPriceAdd.geometry('%dx%d+%d+%d' % (400, 250, x*1.5, y*1.5))
     conn = sqlite3.connect('Hiccups.db')
     c = conn.cursor()
 
@@ -506,7 +510,7 @@ def productEditWindowPopup():
     global productsEdit
     productsEdit = Tk()
     productsEdit.title("Edit data of highlighted column of Products")
-    productsEdit.geometry("400x280")
+    productsEdit.geometry('%dx%d+%d+%d' % (400, 250, x*1.5, y*1.5))
     conn = sqlite3.connect('Hiccups.db')
     c = conn.cursor()
     selectColumn = display_Products_ContentTree.focus()
@@ -559,7 +563,7 @@ def editComfirm():
     global editConfirmWindow
     editConfirmWindow = tk.Tk()
     editConfirmWindow.title('Edit Confirm')
-    editConfirmWindow.geometry("310x140")
+    editConfirmWindow.geometry('%dx%d+%d+%d' % (310, 140, x*1.5, y*1.5))
     confirm_message = Label(editConfirmWindow, text=" Are you sure you want to save changes?", padx=10, pady=10)
     confirm_message.grid(row=0, column=0, pady=10)
     yesNoBox = Frame(editConfirmWindow)
@@ -573,7 +577,7 @@ def deleteConfirm():
     global deleteConfirmWindow
     deleteConfirmWindow = tk.Tk()
     deleteConfirmWindow.title('Delete Confirm')
-    deleteConfirmWindow.geometry("310x140")
+    deleteConfirmWindow.geometry('%dx%d+%d+%d' % (310, 140, x*1.5, y*1.5))
     # This is buggy for now need to figure out how to check if the treeView item is exist
     try:
         if (bool(display_Products_ContentTree.winfo_exists())):
